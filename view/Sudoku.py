@@ -2,7 +2,7 @@ import sys
 import tkinter as tk
 import webbrowser
 sys.path.append("..\images")
-sys.path.append("..\Commons")
+sys.path.append("..\commons")
 
 
 from Game import *
