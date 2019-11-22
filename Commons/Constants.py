@@ -6,10 +6,13 @@ import tkinter
 
 window = tkinter.Tk()
 
-SUDUKU_WEIGTH = int((window.winfo_screenwidth()*(0.5)))
+SUDOKU_WEIGTH = int((window.winfo_screenwidth()*(0.5)))
 SUDOKU_HEIGHT = int((window.winfo_screenheight()*(0.5)))
 FRAME_X = int(window.winfo_screenheight()*0.5)-50
 FRAME_Y = 10
+
+CONFIGURE_WEIGTH = int(SUDOKU_WEIGTH * 0.8)
+CONFIGURE_HEIGHT = int((window.winfo_screenheight()*(0.8)))
 
 GAME_WEIGTH = int((window.winfo_screenwidth()*(0.5)))
 GAME_HEIGHT = int((window.winfo_screenheight()*(0.90)))
@@ -47,3 +50,11 @@ OPTION_Y = CONTAINER_Y
 FONT = ("Helvetica", 24, "bold")
 FONT_MATRIX = ("Helvetica", 10)
 FONT_BUTTON = ("Helvetica", 12, "bold")
+FONT_CONFIGURE = ("Helvetica", 12)
+
+WACTH_LABEL = ("Horas", "Minutos", "Segundos")
+
+MATRIX_NUMBERS = [1,2,3,4,5,6,7,8,9]
+MATRIX_LETTERS = ["A","B","C","D","E","F","G","H", "I"]
+MATRIX_COLORES = ["#1676b0", "#a9b4bb", "#e1b403", "#8cf45d", "#6f3636", "#e11414", "#efff13", "#9609ec","#000000"]
+MATRIX_POOL_BALLS = []

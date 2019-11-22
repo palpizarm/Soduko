@@ -13,8 +13,10 @@ import Constants as c
 class Game:
     __matrix = []
     __buttons_label = ["START GAME", "UNDO", "FINISH GAME", "ERASE GAME", "TOP 10"]
-    __options_label = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    __options_label = [""]*9
+    __options_bg = c.MATRIX_COLORES
     __buttons = dict().fromkeys(__buttons_label)
+    __seleceted_options = None
     def __init__(self, pMaster):
         """
         Create and configure the window
@@ -55,14 +57,21 @@ class Game:
         self.playerName.place(x=c.PLAYER_NAME_X, y=c.PLAYER_NAME_Y)
         for index in range(len(self.__options_label)):
             option = tk.Button(self.__frame, text = self.__options_label[index],
-                                fg = "white" , bg = "red", borderwidth = 2,
+                                fg = "white" , bg = self.__options_bg[index], borderwidth = 2,
                                 relief="solid" ,highlightcolor = "black",
-                                width = 5, height= 2, font= c.FONT_BUTTON)
+                                width = 5, height= 2, font= c.FONT_BUTTON,
+                                command = "")
             if index < 6:
                 option.place(x=c.OPTION_X + index*10, y=c.OPTION_Y + (index*45))
             else:
                 option.place(x=c.OPTION_X + (10-index)*10, y=c.OPTION_Y + (index*45))
         
+        
+    def selected(self):
+        """
+        Call when the buttons options is press
+        """
+        self.__seleceted_options
 
 
     def initListeners(self):
