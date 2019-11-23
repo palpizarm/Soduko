@@ -8,6 +8,7 @@ sys.path.append("..\commons")
 from Game import *
 from SettingGame import *
 import Constants as c
+from loadImages import *
 
 """
 Method of de main menu
@@ -123,5 +124,5 @@ main.resizable(width=False, height=False)
 #bgImage = tk.PhotoImage(file='\\images\\menubg.png')
 
 menu()
-
+loadImages()
 main.mainloop()

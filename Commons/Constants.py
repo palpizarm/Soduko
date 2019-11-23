@@ -4,6 +4,7 @@ Contains all constants
 
 import tkinter
 
+
 window = tkinter.Tk()
 
 SUDOKU_WEIGTH = int((window.winfo_screenwidth()*(0.5)))
@@ -57,4 +58,4 @@ WACTH_LABEL = ("Hours", "Minutes", "Seconds")
 MATRIX_NUMBERS = [1,2,3,4,5,6,7,8,9]
 MATRIX_LETTERS = ["A","B","C","D","E","F","G","H", "I"]
 MATRIX_COLORES = ["#1676b0", "#a9b4bb", "#e1b403", "#8cf45d", "#6f3636", "#e11414", "#efff13", "#9609ec","#000000"]
-MATRIX_POOL_BALLS = ["pool_ball1", "pool_ball2", "pool_ball3","pool_ball4", "pool_ball5", "pool_ball6","pool_ball7", "pool_ball8", "pool_ball9"]
+MATRIX_POOL_BALLS = []

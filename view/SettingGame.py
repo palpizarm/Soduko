@@ -200,10 +200,10 @@ class SettingGame:
                 option.place(x= 250 + index*10, y= 100 + (index*45))
             else:
                 option.place(x= 250 + (10-index)*10, y= 100 + (index*45))
-            option = tk.Button(self.__personalizeContainer, text = c.MATRIX_POOL_BALLS[index],
+            option = tk.Button(self.__personalizeContainer, image = c.MATRIX_POOL_BALLS[index],
                                 fg = "black" , bg = "white", borderwidth = 2,
                                 relief="solid" ,highlightcolor = "black",
-                                width = 5, height= 2, font= c.FONT_BUTTON)
+                                width = 50, height= 50, font= c.FONT_BUTTON)
             if index < 6:
                 option.place(x= 350 + index*10, y= 100 + (index*45))
             else:
