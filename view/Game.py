@@ -17,6 +17,7 @@ class Game:
     __options_bg = c.MATRIX_COLORES
     __buttons = dict().fromkeys(__buttons_label)
     __seleceted_options = None
+
     def __init__(self, pMaster):
         """
         Create and configure the window
