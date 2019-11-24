@@ -39,7 +39,8 @@ def configure():
     """
     Show the options to personalize the game
     """
-    SettingGame(main)
+    settingFrame = SettingGame(main)
+    del settingFrame
 
 
 

@@ -37,7 +37,7 @@ class SettingGame:
         self.createLevelPanel()
         self.createWatchPanel()
         self.createPersonalizePanel()
-
+        self.__frame.protocol('WM_DELETE_WINDOW', self.saveSetting) 
         self.__frame.mainloop()
 
 
@@ -123,7 +123,6 @@ class SettingGame:
                             width=4)
             entry.grid(row=1,column=i)
             entry.bind('<KeyRelease>', self.checkEntriesTimes)
-
             self.__time.append(entry)
     
 
@@ -138,17 +137,17 @@ class SettingGame:
         levelEasy = tk.Radiobutton(master=self.__levelContainer, padx=59,
                                 text="Easy", indicatoron = 0,
                                 variable=self.__level, bg="white", 
-                                font=c.FONT_CONFIGURE, value=1)
+                                font=c.FONT_CONFIGURE, value=1, command = self.checkWatch)
         levelEasy.place(x=50 , y=50)
         levelNormal = tk.Radiobutton(master=self.__levelContainer, padx=50,
                                 text="Normal", indicatoron = 0, 
                                 variable=self.__level, bg="white",
-                                font=c.FONT_CONFIGURE, value=2)
+                                font=c.FONT_CONFIGURE, value=2, command = self.checkWatch)
         levelNormal.place(x=50 , y=80)
         levelHard = tk.Radiobutton(master=self.__levelContainer, padx=59,
                                 text="Hard", indicatoron = 0,
                                 variable=self.__level, bg="white",
-                                font=c.FONT_CONFIGURE, value=3)
+                                font=c.FONT_CONFIGURE, value=3, command = self.checkWatch)
         levelHard.place(x=50 , y=110)
     
 
@@ -223,13 +222,19 @@ class SettingGame:
                 self.__time[index].config(state="normal")
         if self.__level.get() == 1:
             self.__time[1].insert(0,"30")
+            self.__time[0].insert(0,"0")
+            self.__time[2].insert(0,"0")
         elif self.__level.get() == 2:
             self.__time[0].insert(0,"1")
+            self.__time[1].insert(0,"0")
+            self.__time[2].insert(0,"0")
         elif self.__level.get() == 3:
             self.__time[0].insert(0,"2")
+            self.__time[1].insert(0,"0")
+            self.__time[2].insert(0,"0")
 
 
-    def checkEntriesTimes(self,event):
+    def checkEntriesTimes(self):
         """
         check if a entris of hours, minutes and seconds have correct format
         """
@@ -266,8 +271,10 @@ class SettingGame:
         """
         Save the adjusment of the game
         """
-        file = open("sudoku2019Setting.dat")
-        file.write(str(self.__level))
-        file.write(str(self.__fillOption))
-        file.write(str(self.__watchOption))
-        file.write(str(self.__time))
+        file = open("sudoku2019Setting.dat","w+")
+        file.write(str(self.__level.get()) + "\n")
+        file.write(str(self.__fillOption.get()) + "\n")
+        file.write(str(self.__watchOption.get()) + "\n")
+        file.write("["+str(self.__time[0].get())+"," + str(self.__time[1].get())+ ","+ str(self.__time[2].get())+"]")
+        file.close()
+        self.__frame.destroy()
