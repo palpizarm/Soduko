@@ -1,5 +1,6 @@
 import sys
 import tkinter as tk
+from tkinter import messagebox
 
 sys.path.append('../commons')
 
@@ -62,7 +63,6 @@ class SettingGame:
         self.__levelContainer.pack()
 
 
-
     def showWatch(self):
         """
         Show the setting of watch
@@ -71,8 +71,8 @@ class SettingGame:
         self.__levelContainer.pack_forget()
         self.__personalizeContainer.pack_forget()
         self.__watchContainer.pack()
+        self.checkWatch()
 
-    
 
     def showPersonalize(self):
         """
@@ -82,7 +82,6 @@ class SettingGame:
         self.__levelContainer.pack_forget()
         self.__watchContainer.pack_forget()
         self.__personalizeContainer.pack()
-
 
 
     def createWatchPanel(self):
@@ -118,11 +117,13 @@ class SettingGame:
             tk.Label(master=watch, text = c.WACTH_LABEL[i],
                     bg="white", fg="black",
                     font=c.FONT_CONFIGURE).grid(row=0,column=i)
-            entry = tk.Entry(master=watch,
+            entry = tk.Entry(master=watch, state="disabled",
                             bg="white", fg="black",
                             font=c.FONT_CONFIGURE,
                             width=4)
             entry.grid(row=1,column=i)
+            entry.bind('<KeyRelease>', self.checkEntriesTimes)
+
             self.__time.append(entry)
     
 
@@ -215,28 +216,51 @@ class SettingGame:
         Check if the watch if active of disable
         """
         for index in range(len(self.__time)):
-            if self.__watchOption.get() == 1 or self.__watchOption.get() == 3:
-                self.__time[index].config(state="normal")
-            else:
+            self.__time[index].delete(0,"end")
+            if self.__watchOption.get() == 1 or self.__watchOption.get() == 2:
                 self.__time[index].config(state="disabled")
-    
+            else:
+                self.__time[index].config(state="normal")
+        if self.__level.get() == 1:
+            self.__time[1].insert(0,"30")
+        elif self.__level.get() == 2:
+            self.__time[0].insert(0,"1")
+        elif self.__level.get() == 3:
+            self.__time[0].insert(0,"2")
 
-    def checkEntriesTimes(self):
+
+    def checkEntriesTimes(self,event):
         """
-        check if a entris of hours, minutes and seconds are valids
+        check if a entris of hours, minutes and seconds have correct format
         """
-        hours = self.__time[0]
-        minutes = self.__time[1]
-        seconds = self.__time[2]
-        if not hours.isdigit() or hours < 0 or hours > 4:
-            self.__time[0] = 0
-            return False
-        if not minutes.isdigit() or minutes < 0 or minutes > 59:
-            self.__time[1] = 0
-            return False
-        if not seconds.isdigit() or seconds < 0 or seconds > 59:
-            self.__time[2] = 0        
-            return False
+        hours = self.__time[0].get()
+        minutes = self.__time[1].get()
+        seconds = self.__time[2].get()
+        if hours != "":
+            if not hours.isdigit():
+                 self.__time[0].delete(0,"end")   
+            else:
+                hours = int(hours)
+                if hours < 0 or hours > 4:
+                    self.__time[0].delete(0,"end")
+                    messagebox.showerror("Hours Format", "Las horas deben estar entre 0 - 4")
+        if minutes != "":
+            if not minutes.isdigit():
+                self.__time[1].delete(0,"end")
+            else:
+                minutes = int(minutes)
+                if minutes < 0 or minutes > 59:
+                    self.__time[1].delete(0,"end")
+                    messagebox.showerror("Minutes Format", "Las minutos deben estar entre 0 - 59")
+        if seconds != "":
+            if not seconds.isdigit():
+                self.__time[2].delete(0,"end")
+            else:
+                seconds = int(seconds)
+                if seconds < 0 or seconds > 59:
+                    self.__time[2].delete(0,"end")
+                    messagebox.showerror("Seconds Format", "Los segundos deben estar entre 0 - 59")
+
 
     def saveSetting(self):
         """
