@@ -2,9 +2,6 @@
 Controller the game and logical functions
 """
 import ast
-import sys
-sys.path.append('../model')
-sys.path.append('../commons')
 
 from Games import *
 from Player import *

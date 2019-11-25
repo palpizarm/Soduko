@@ -1,8 +1,5 @@
-import sys
 import tkinter as tk
 from tkinter import messagebox
-
-sys.path.append('../commons')
 
 import Constants as c
 
@@ -234,7 +231,7 @@ class SettingGame:
             self.__time[2].insert(0,"0")
 
 
-    def checkEntriesTimes(self):
+    def checkEntriesTimes(self,event):
         """
         check if a entris of hours, minutes and seconds have correct format
         """
@@ -273,8 +270,11 @@ class SettingGame:
         """
         file = open("sudoku2019Setting.dat","w+")
         file.write(str(self.__level.get()) + "\n")
-        file.write(str(self.__fillOption.get()) + "\n")
-        file.write(str(self.__watchOption.get()) + "\n")
-        file.write("["+str(self.__time[0].get())+"," + str(self.__time[1].get())+ ","+ str(self.__time[2].get())+"]")
+        file.write(str((self.__fillOption.get())) + "\n")
+        file.write(str((self.__watchOption.get())) + "\n")
+        hours = self.__time[0].get()
+        minutes = self.__time[1].get()
+        second = self.__time[2].get()
+        file.write("["+str(hours)+"," + str(minutes)+ ","+ str(second)+"]")
         file.close()
         self.__frame.destroy()

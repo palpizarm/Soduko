@@ -2,36 +2,38 @@
 
 This class manager all function to play the game
 """
-from PIL import Image, ImageTk
 import tkinter as tk
-import sys
+from tkinter import messagebox
 import ast
-sys.path.append('../commons')
+
 
 import Constants as c
+from LoadImages import *
 
 
 class Game:
     __matrix = []
     __buttons_label = ["START GAME", "UNDO", "FINISH GAME", "ERASE GAME", "TOP 10"]
     __buttons = dict().fromkeys(__buttons_label)
-    __seleceted_options = None
-    __watchAtivited = None
+    __seleceted_options = ""
+    __watchAtivited = ""
     __time = ["0"]*3
+    __timeEntry = []
 
     def __init__(self, pMaster):
         """
         Create and configure the window
         """
         self.__master = pMaster
+        loadImages()
         self.__frame = tk.Tk()
         self.__frame.title("SUDOKU GAME")
         self.__frame.geometry("{}x{}+{}+{}".format(c.GAME_WEIGTH, c.GAME_HEIGHT,
                                                     c.FRAME_X, c.FRAME_Y))
         self.__frame.resizable(width=False,height=False)
-        self.__options_label = [""]*9
-        self.__options_bg = ["white"]*9
-        self.__options_images = [""]*9
+        self.__options_label = []
+        self.__options_bg = []
+        self.__options_images = [] 
         self.__getSettingGame()
         self.initComponents()
         self.initListeners()
@@ -45,38 +47,23 @@ class Game:
         Read the file to get the adjusment of the game
         """
         file = open("sudoku2019Setting.dat","r")
-        level = file.readline()
-        fillOption = file.readline()
-        self.__watchAtivited = file.readline()
-        if self.__watchAtivited == '3':
+        level = int(file.readline())
+        fillOption = int(file.readline())
+        self.__watchAtivited = int(file.readline())
+        if self.__watchAtivited == 3:
             self.__time = file.readline()
             self.__time = ast.literal_eval(self.__time)
         file.close()
-        if fillOption == '1':
-            self.__options_label = c.MATRIX_NUMBERS
-            self.__options_bg = [""]*9
-            self.__options_images = [""]*9
-        elif fillOption == '2':
-            self.__options_label = c.MATRIX_LETTERS
-            self.__options_bg = [""]*9
-            self.__options_images = [""]*9
-        elif fillOption == '3':
-            self.__options_label = [""]*9
-            self.__options_bg = c.MATRIX_COLORS
-            self.__options_images = [""]*9
-        elif fillOption == '4':
-            self.__options_label = [""]*9
-            self.__options_bg = [""]*9
-            self.__options_images = c.MATRIX_POOL_BALLS
+        self.__options_label,self.__options_bg,self.__options_images = c.FILL_OPTION[fillOption-1]
         self.__difficulty = tk.Label(self.__frame,
-                                    fg = "black", 
-                                    font= c.FONT_BUTTON)
+                            fg = "black", text="PRUEBA",
+                            font= c.FONT_BUTTON)
         self.__difficulty.place(x=c.DIFFICULTY_X, y=c.DIFFICULTY_Y)
-        if level == '1':
+        if level == 1:
             self.__difficulty.config(text = "DIFFICULTY: EASY")
-        elif level == '2':
+        elif level == 2:
             self.__difficulty.config(text = "DIFFICULTY: NORMAL")
-        elif level == '3':
+        elif level == 3:
             self.__difficulty.config(text = "DIFFICULTY: HARD")
         # do the function in handler to get the game matrix
 
@@ -99,7 +86,7 @@ class Game:
         self.playerName.place(x=c.PLAYER_NAME_X, y=c.PLAYER_NAME_Y)
         for index in range(9):
             option = tk.Button(self.__frame, text = self.__options_label[index],
-                                fg = "white" ,  borderwidth = 2,
+                                fg = "black" ,  borderwidth = 2, bg = self.__options_bg[index],
                                 relief="solid" ,highlightcolor = "black",
                                 width = 5, height= 2, image = self.__options_images[index], 
                                 font= c.FONT_BUTTON, command = "")
@@ -108,8 +95,9 @@ class Game:
             else:
                 option.place(x=c.OPTION_X + (10-index)*10, y=c.OPTION_Y + (index*45))
         # To show the watch in the frame if a selceted option is 1 or 3
+        print(self.__watchAtivited)
         if self.__watchAtivited == 1 or self.__watchAtivited == 3:
-            watch = tk.Canvas(self.__watchContainer, width=200,
+            watch = tk.Canvas(self.__frame, width=200,
                             height=100, bg="white")
             watch.place(x=c.WATCH_X,y=c.WATCH_Y)
             for i in range(3):
@@ -126,7 +114,6 @@ class Game:
                 entry.grid(row=1,column=i)
                 entry.bind('<KeyRelease>', self.checkEntriesTimes)
                 self.__timeEntry.append(entry)
-
 
     def selected(self):
         """
@@ -235,3 +222,36 @@ class Game:
         """
         show the top10 of each levels
         """
+    
+
+    def checkEntriesTimes(self,event):
+        """
+        check if a entris of hours, minutes and seconds have correct format
+        """
+        hours = self.__timeEntry[0].get()
+        minutes = self.__timeEntry[1].get()
+        seconds = self.__timeEntry[2].get()
+        if hours != "":
+            if not hours.isdigit():
+                 self.__timeEntry[0].delete(0,"end")   
+            else:
+                hours = int(hours)
+                if hours < 0 or hours > 4:
+                    self.__timeEntry[0].delete(0,"end")
+                    messagebox.showerror("Hours Format", "Las horas deben estar entre 0 - 4")
+        if minutes != "":
+            if not minutes.isdigit():
+                self.__timeEntry[1].delete(0,"end")
+            else:
+                minutes = int(minutes)
+                if minutes < 0 or minutes > 59:
+                    self.__timeEntry[1].delete(0,"end")
+                    messagebox.showerror("Minutes Format", "Las minutos deben estar entre 0 - 59")
+        if seconds != "":
+            if not seconds.isdigit():
+                self.__timeEntry[2].delete(0,"end")
+            else:
+                seconds = int(seconds)
+                if seconds < 0 or seconds > 59:
+                    self.__timeEntry[2].delete(0,"end")
+                    messagebox.showerror("Seconds Format", "Los segundos deben estar entre 0 - 59")

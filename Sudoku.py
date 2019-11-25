@@ -1,14 +1,12 @@
-import sys
+from PIL import Image, ImageTk
 import tkinter as tk
 import webbrowser
-sys.path.append("..\images")
-sys.path.append("..\commons")
 
 
 from Game import *
 from SettingGame import *
 import Constants as c
-from loadImages import *
+from LoadImages import *
 
 """
 Method of de main menu
@@ -122,8 +120,12 @@ main.title("SUDOKU")
 main.geometry("{}x{}+{}+{}".format(c.SUDOKU_WEIGTH, c.SUDOKU_HEIGHT,
                                     c.FRAME_X, c.FRAME_Y))
 main.resizable(width=False, height=False)
-#bgImage = tk.PhotoImage(file='\\images\\menubg.png')
-
+img = Image.open("images/menubg.png")
+pyimg = ImageTk.PhotoImage(img)
+bg = tk.Canvas(main, width=c.SUDOKU_WEIGTH,
+                height = c.SUDOKU_HEIGHT)
+bg.pack()
+bg.create_image(c.SUDOKU_WEIGTH*0.5,c.SUDOKU_HEIGHT*0.5,image = pyimg)
 menu()
 loadImages()
 main.mainloop()
