@@ -19,19 +19,21 @@ def menu():
     """
     toolbar_menu = tk.Menu(main)
     main.config(menu=toolbar_menu)
-    toolbar_menu.add_command(label="START GAME", command=startGame)
+    toolbar_menu.add_command(label="START GAME", command=showGame)
     toolbar_menu.add_command(label="CONFIGURE", command=showSetting)
     toolbar_menu.add_command(label="HELP", command=help)
     toolbar_menu.add_command(label="ABUT", command= about)
     toolbar_menu.add_command(label="EXIT", command=main.destroy)
 
 
-def startGame():
+def showGame():
     """
-    Call the game instance
+    Show the frame of game
     """
-    game = Game(main)
-
+    game.getSettingGame()
+    gameFrame.deiconify()
+    gameFrame.focus_force()
+    gameFrame.grab_set()
 
 def configure():
     """
@@ -42,7 +44,7 @@ def configure():
 
 def showSetting():
     """
-    Show the frame
+    Show the frame of setting
     """
     settingFrame.deiconify()
     settingFrame.focus_force()
@@ -118,6 +120,10 @@ MAIN WINDOW
 """""""""""""""""""""""""""""
 main = tk.Tk()
 settingFrame = tk.Toplevel(main)
+gameFrame = tk.Toplevel(main)
+settingFrame.withdraw()
+gameFrame.withdraw()
+game = Game(main, gameFrame)
 """
 Application laucher
 """

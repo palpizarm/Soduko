@@ -32,7 +32,6 @@ class SettingGame:
         self.createWatchPanel()
         self.createPersonalizePanel()
         self.__frame.protocol('WM_DELETE_WINDOW', self.saveSetting)
-        self.__frame.iconify()
 
 
     def initComponents(self):

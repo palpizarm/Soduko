@@ -1,4 +1,4 @@
-
+from PIL import Image, ImageTk
 import ast
 
 from Games import *
@@ -12,6 +12,7 @@ class Handler:
     """
     __currentGame = None
     __currentLevel = None
+    __gamePlayer = None
 
     def __init__(self):
         """
@@ -32,6 +33,12 @@ class Handler:
         self.__gamesLevel = self.__games.getLevelGames(self.__currentLevel).copy()
 
 
+    def getGamePlayer(self):
+        """
+        Return the current game of the player
+        """
+        return self.__gamePlayer
+
     def chooseRandomGames(self):
         """
         Choose a random game from dictionary
@@ -43,6 +50,7 @@ class Handler:
             keys.append(key)
         game = random.choice(keys)
         self.__currentGame = self.__gamesLevel.pop(game)
+        self.__gamePlayer = self.__currentGame
 
 
     def checkBestPlayers(self, player):
@@ -76,6 +84,7 @@ class Handler:
                 file.write(player.saveData())
             file.write(']\n')
 
+
     def loadBestPlayers(self):
         """
         Load the games from file
@@ -96,7 +105,6 @@ class Handler:
             self.__bestPlayers[1].append(Player(player[0],player[1]))
         for player in hardLevel:
             self.__bestPlayers[2].append(Player(player[0],player[1]))
-
 
 
 def secToHours(time):
