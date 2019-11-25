@@ -8,15 +8,12 @@ class SettingGame:
     
     __time = []
 
-    def __init__(self, pMaster):
+    def __init__(self, pMaster, pFrame):
         """
         Constructor
         """
         self.__master = pMaster
-        self.__frame = tk.Toplevel(self.__master)
-        self.__frame.focus_force()
-        self.__frame.transient(self.__master) 
-        self.__frame.grab_set()
+        self.__frame = pFrame
         self.__frame.title("SETTING GAME")
         self.__frame.geometry("{}x{}+{}+{}".format(c.CONFIGURE_WEIGTH, c.CONFIGURE_HEIGHT,
                                                     c.FRAME_X, c.FRAME_Y))
@@ -34,8 +31,8 @@ class SettingGame:
         self.createLevelPanel()
         self.createWatchPanel()
         self.createPersonalizePanel()
-        self.__frame.protocol('WM_DELETE_WINDOW', self.saveSetting) 
-        self.__frame.mainloop()
+        self.__frame.protocol('WM_DELETE_WINDOW', self.saveSetting)
+        self.__frame.iconify()
 
 
     def initComponents(self):
@@ -110,9 +107,9 @@ class SettingGame:
             subcontainer = tk.Canvas(watch, 
                                 width=70, height=70,
                                 bg="white")
-            subcontainer.grid(row=1,column=i, padx=4, pady=4)
+            subcontainer.grid(row=1,column=i,padx=4, pady=4)
             tk.Label(master=watch, text = c.WACTH_LABEL[i],
-                    bg="white", fg="black",
+                    bg="gray", fg="black",
                     font=c.FONT_CONFIGURE).grid(row=0,column=i)
             entry = tk.Entry(master=watch, state="disabled",
                             bg="white", fg="black",
@@ -277,4 +274,6 @@ class SettingGame:
         second = self.__time[2].get()
         file.write("["+str(hours)+"," + str(minutes)+ ","+ str(second)+"]")
         file.close()
-        self.__frame.destroy()
+        self.__frame.withdraw()
+        self.__master.focus_force()
+        self.__master.grab_set()

@@ -20,7 +20,7 @@ def menu():
     toolbar_menu = tk.Menu(main)
     main.config(menu=toolbar_menu)
     toolbar_menu.add_command(label="START GAME", command=startGame)
-    toolbar_menu.add_command(label="CONFIGURE", command=configure)
+    toolbar_menu.add_command(label="CONFIGURE", command=showSetting)
     toolbar_menu.add_command(label="HELP", command=help)
     toolbar_menu.add_command(label="ABUT", command= about)
     toolbar_menu.add_command(label="EXIT", command=main.destroy)
@@ -30,18 +30,23 @@ def startGame():
     """
     Call the game instance
     """
-    Game(main)
+    game = Game(main)
 
 
 def configure():
     """
     Show the options to personalize the game
     """
-    settingFrame = SettingGame(main)
-    del settingFrame
+    SettingGame(main,settingFrame)
 
 
-
+def showSetting():
+    """
+    Show the frame
+    """
+    settingFrame.deiconify()
+    settingFrame.focus_force()
+    settingFrame.grab_set()
 
 def about():
     """
@@ -112,7 +117,7 @@ def openManual():
 MAIN WINDOW
 """""""""""""""""""""""""""""
 main = tk.Tk()
-
+settingFrame = tk.Toplevel(main)
 """
 Application laucher
 """
@@ -128,4 +133,6 @@ bg.pack()
 bg.create_image(c.SUDOKU_WEIGTH*0.5,c.SUDOKU_HEIGHT*0.5,image = pyimg)
 menu()
 loadImages()
+configure()
+main.focus_force()
 main.mainloop()

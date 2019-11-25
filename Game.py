@@ -9,6 +9,8 @@ import ast
 
 import Constants as c
 from LoadImages import *
+from Handler import *
+from base64 import main
 
 
 class Game:
@@ -25,7 +27,7 @@ class Game:
         Create and configure the window
         """
         self.__master = pMaster
-        loadImages()
+        self.__handler = Handler()
         self.__frame = tk.Tk()
         self.__frame.title("SUDOKU GAME")
         self.__frame.geometry("{}x{}+{}+{}".format(c.GAME_WEIGTH, c.GAME_HEIGHT,
@@ -38,9 +40,8 @@ class Game:
         self.initComponents()
         self.initListeners()
         self.createTable()
-
-        self.__frame.mainloop()
     
+
 
     def __getSettingGame(self):
         """
@@ -65,7 +66,8 @@ class Game:
             self.__difficulty.config(text = "DIFFICULTY: NORMAL")
         elif level == 3:
             self.__difficulty.config(text = "DIFFICULTY: HARD")
-        # do the function in handler to get the game matrix
+        self.__handler.setLevel(level)
+        self.__handler.chooseRandomGames()
 
 
     def initComponents(self):
@@ -83,6 +85,7 @@ class Game:
                                     bg="white",
                                     fg="black",
                                     width=45)
+        self.playerName.bind('<KeyRelease>', self.checkName)
         self.playerName.place(x=c.PLAYER_NAME_X, y=c.PLAYER_NAME_Y)
         for index in range(9):
             option = tk.Button(self.__frame, text = self.__options_label[index],
@@ -95,15 +98,14 @@ class Game:
             else:
                 option.place(x=c.OPTION_X + (10-index)*10, y=c.OPTION_Y + (index*45))
         # To show the watch in the frame if a selceted option is 1 or 3
-        print(self.__watchAtivited)
         if self.__watchAtivited == 1 or self.__watchAtivited == 3:
             watch = tk.Canvas(self.__frame, width=200,
-                            height=100, bg="white")
+                            height=100, bg="white", highlightbackground = "white")
             watch.place(x=c.WATCH_X,y=c.WATCH_Y)
             for i in range(3):
                 subcontainer = tk.Canvas(watch, 
                                     width=70, height=70,
-                                    bg="white")
+                                    bg="white", highlightbackground = "white")
                 subcontainer.grid(row=1,column=i, padx=4, pady=4)
                 tk.Label(master=watch, text = c.WACTH_LABEL[i],
                         bg="white", fg="black",
@@ -160,12 +162,8 @@ class Game:
             filas = []
             for j in range(9):
                 square = tk.PanedWindow(container)
-                square.grid(row=i, column=j, padx=1, pady=3)
-                if j % 3 == 0:
-                    square.grid(row=i, column=j, padx=3, pady=1)
-                if i % 3 == 0:
-                    square.grid(row=i, column=j, padx=1, pady=3)
-                field = tk.Label(master=square, text="",
+                square.grid(row=i, column=j, padx=1, pady=1)
+                field = tk.Button(master=square, text=c.MATRIX_NUMBERS,
                                 bg="white", justify="center",
                                 fg="black", font=c.FONT_MATRIX, 
                                 width=c.SQUARE_WIDTH, height=c.SQUARE_HEIGHT)
@@ -198,7 +196,9 @@ class Game:
         """
         Check and  start the game if is possible
         """
-    
+        for index in range(len(self.__timeEntry)):
+                self.__timeEntry[index].config(state="disabled")
+        self.playerName.config(state="disabled")
 
     def undo(self):
         """
@@ -222,7 +222,78 @@ class Game:
         """
         show the top10 of each levels
         """
-    
+        top10Frame = tk.Toplevel(self.__frame)
+        top10Frame.focus_force()
+        top10Frame.transient(self.__frame)
+        top10Frame.grab_set()
+        top10Frame.title("Top 10")
+        top10Frame.config(bg="white")
+        top10Frame.geometry("{}x{}+{}+{}".format(700,
+                                            600,
+                                            c.FRAME_X,
+                                            c.FRAME_Y))
+        tk.Label(top10Frame, text="Top 10 \n Easy Level",
+                fg="black", font=c.FONT_BUTTON).place(x=50,y=0)
+        tk.Label(top10Frame, text="Top 10 \n Normal Level",
+                fg="black", font=c.FONT_BUTTON).place(x=250,y=0)
+        tk.Label(top10Frame, text="Top 10 \n Hard Level",
+                fg="black", font=c.FONT_BUTTON).place(x=500,y=0)
+        easyLevel = tk.Canvas(top10Frame, width=260,
+                            height=500, bg="white",
+                            highlightbackground = "white")
+        easyLevel.place(x=c.TOP10EASY_X,y=c.TOP10EASY_Y)
+        normalLevel = tk.Canvas(top10Frame, width=260,
+                            height=500, bg="white",
+                            highlightbackground = "white")
+        normalLevel.place(x=c.TOP10NORMAL_X,y=c.TOP10NORMAL_Y)
+        hardLevel = tk.Canvas(top10Frame, width=260,
+                            height=500, bg="white",
+                            highlightbackground = "white")
+        hardLevel.place(x=c.TOP10HARD_X,y=c.TOP10HARD_Y)
+        tk.Label(easyLevel, text="Player",
+        fg="black", bg = "white",
+        font=c.FONT_BUTTON).grid(row=0,column= 0)
+        tk.Label(easyLevel, text="Time",
+        fg="black", bg = "white",
+        font=c.FONT_BUTTON).grid(row=0,column= 1)
+        tk.Label(normalLevel, text="Player",
+        fg="black", bg = "white",
+        font=c.FONT_BUTTON).grid(row=0,column= 0)
+        tk.Label(normalLevel, text="Time",
+        fg="black", bg = "white",
+        font=c.FONT_BUTTON).grid(row=0,column= 1)
+        tk.Label(hardLevel, text="Player",
+        fg="black", bg = "white",
+        font=c.FONT_BUTTON).grid(row=0,column= 0)
+        tk.Label(hardLevel, text="Time",
+        fg="black", bg = "white",
+        font=c.FONT_BUTTON).grid(row=0,column= 1)
+        bestPlayers = self.__handler.getBestPlayersToTop()
+        playersEasy = bestPlayers[0]
+        for index in range(len(playersEasy)):
+            tk.Label(easyLevel, text=str(index + 1)+ '.' +playersEasy[index][0],
+            fg="black", bg = "white", anchor = 'w',
+            font=c.FONT_BUTTON).grid(row=index+1,column= 0)
+            tk.Label(easyLevel, text=playersEasy[index][1],
+            fg="black", bg = "white", 
+            font=c.FONT_BUTTON).grid(row=index+1,column= 1)
+        playersEasy = bestPlayers[1]
+        for index in range(len(playersEasy)):
+            tk.Label(normalLevel, text=str(index + 1)+ '.' +playersEasy[index][0],
+            fg="black", bg = "white",
+            font=c.FONT_BUTTON).grid(row=index+1,column= 0)
+            tk.Label(normalLevel, text=playersEasy[index][1],
+            fg="black", bg = "white",
+            font=c.FONT_BUTTON).grid(row=index+1,column= 1)
+        playersEasy = bestPlayers[2]
+        for index in range(len(playersEasy)):
+            tk.Label(hardLevel, text=str(index + 1)+ '.' +playersEasy[index][0],
+            fg="black", bg = "white",
+            font=c.FONT_BUTTON).grid(row=index+1,column= 0)
+            tk.Label(hardLevel, text=playersEasy[index][1],
+            fg="black", bg = "white",
+            font=c.FONT_BUTTON).grid(row=index+1,column= 1)
+
 
     def checkEntriesTimes(self,event):
         """
@@ -255,3 +326,15 @@ class Game:
                 if seconds < 0 or seconds > 59:
                     self.__timeEntry[2].delete(0,"end")
                     messagebox.showerror("Seconds Format", "Los segundos deben estar entre 0 - 59")
+    
+
+    def checkName(self,event):
+        """
+        Check each enter in the name entry
+        """
+        name = self.playerName.get()
+        if name.isdigit():
+            self.playerName.delete(len(name)-1,"end")
+        if len(name) > 30:
+            self.playerName.delete(0,"end")
+            messagebox.showerror("Name format", "El nombre debe ser menor a 30 caracteres")
