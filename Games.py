@@ -21,6 +21,7 @@ class Games:
         self.__normalGames = dict()
         self.__hardGames = dict()
         self.__levels = [self.__easyGames,self.__normalGames,self.__hardGames]
+        self.loadGames()
 
 
     def addGame(self, game, type):
@@ -34,19 +35,11 @@ class Games:
         self.__levels[type][len(self.__easyGames)+1] = game
     
 
-    def getGame(self, type):
+    def getLevelGames(self, type):
         """
         Return the game of the type of the parameter
         """
-        return self.__chooseeRandomGame(type)
-
-
-    def __chooseeRandomGame(self, type):
-        """
-        Choose a random game from dictionary
-        """
-        indexGame = random.randint(1,len(self.__levels[type]))
-        return self.__levels[type][indexGame]
+        return self.__levels[type]
 
 
     def saveGames(self):
