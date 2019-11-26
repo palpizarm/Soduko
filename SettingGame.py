@@ -86,7 +86,7 @@ class SettingGame:
         tk.Label(self.__watchContainer, text="Select watch option",
                 fg="black", font=c.FONT_BUTTON).place(x=50,y=20)
         tk.Label(self.__watchContainer, text="Set time",
-        fg="black", font=c.FONT_BUTTON).place(x=50,y=20)
+        fg="black", font=c.FONT_BUTTON).place(x=250,y=20)
         watchAtivated = tk.Radiobutton(master=self.__watchContainer, padx=25,
                                 text="Activated", variable=self.__watchOption, 
                                 font=c.FONT_CONFIGURE, value=1, command=self.checkWatch)
@@ -270,9 +270,16 @@ class SettingGame:
         file.write(str((self.__watchOption.get())) + "\n")
         hours = self.__time[0].get()
         minutes = self.__time[1].get()
-        second = self.__time[2].get()
-        file.write("["+str(hours)+"," + str(minutes)+ ","+ str(second)+"]")
+        seconds = self.__time[2].get()
+        if hours == "":
+            hours = '0'
+        if minutes == '':
+            minutes = '0'
+        if seconds == '':
+            seconds = '0'
+        file.write("["+str(hours)+"," + str(minutes)+ ","+ str(seconds)+"]")
         file.close()
         self.__frame.withdraw()
         self.__master.focus_force()
         self.__master.grab_set()
+        self.__master.deiconify()

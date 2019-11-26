@@ -31,6 +31,7 @@ def showGame():
     Show the frame of game
     """
     game.getSettingGame()
+    main.iconify()
     gameFrame.deiconify()
     gameFrame.focus_force()
     gameFrame.grab_set()
@@ -46,6 +47,7 @@ def showSetting():
     """
     Show the frame of setting
     """
+    main.iconify()
     settingFrame.deiconify()
     settingFrame.focus_force()
     settingFrame.grab_set()
@@ -112,7 +114,7 @@ def openManual():
     """
     Open the user manual
     """
-    webbrowser.open_new(r'manual _de_usuario_sudoku.pdf')
+    webbrowser.open_new(r'manual_de_usuario_sudoku.pdf')
 
 
 """""""""""""""""""""""""""""
