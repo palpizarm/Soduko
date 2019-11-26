@@ -18,11 +18,14 @@ class Game:
     __buttons_label = ["START GAME", "UNDO", "FINISH GAME", "ERASE GAME", "TOP 10"]
     __buttons = dict().fromkeys(__buttons_label)
     __seleceted_options = ""
-    __watchAtivited = ""
-    __time = ["0"]*3
+    __watchActivited = ""
+    __time = [0]*3
     __timeEntry = []
     __buttonsOptions = []
-
+    __number = 0
+    __start = False
+    __seconds = 0
+    
     def __init__(self, pMaster, pGameFrame):
         """
         Create and configure the window
@@ -47,25 +50,31 @@ class Game:
         """
         Hide the frame
         """
+        self.playerName.delete(0,'end')
         self.__frame.withdraw()
         self.__master.focus_force()
         self.__master.grab_set()
+        self.__master.deiconify()
 
 
     def getSettingGame(self):
         """
         Read the file to get the adjusment of the game
         """
+        self.__start = False
         for index in range(len(self.__timeEntry)):
-                self.__timeEntry[index].config(state="normal")
+            self.__timeEntry[index].delete(0,'end')
         self.playerName.config(state="normal")
         file = open("sudoku2019Setting.dat","r")
         level = int(file.readline())
         self.__fillOption = int(file.readline())
-        self.__watchAtivited = int(file.readline())
-        if self.__watchAtivited == 3:
+        self.__watchActivited = int(file.readline())
+        if self.__watchActivited == 3:
             self.__time = file.readline()
             self.__time = ast.literal_eval(self.__time)
+            for index in range(len(self.__timeEntry)):
+                self.__timeEntry[index].config(state="normal")
+                self.__timeEntry[index].insert(0,self.__time[index])
         file.close()
         self.cleanTable()
         self.__options_label,self.__options_bg = c.FILL_OPTION[self.__fillOption-1]
@@ -85,7 +94,7 @@ class Game:
                 self.__buttonsOptions[buttonIndex].config(text = self.__options_label[buttonIndex],
                                                     bg = self.__options_bg[buttonIndex],
                                                     width = 5, height= 2)
-        if self.__watchAtivited == 1 or self.__watchAtivited == 3:
+        if self.__watchActivited == 1 or self.__watchActivited == 3:
             self.__watch.place(x=c.WATCH_X,y=c.WATCH_Y)
         else:
             self.__watch.place_forget()
@@ -152,29 +161,43 @@ class Game:
         """
         Call when the buttons options is press
         """
-        index = 0
-        for i in range(9):
-            if self.__buttonsOptions[i] == btn.widget:
-                index = i
-                break
-        print(index)
-        self.__optionSelect.place(x=c.SELECTED_X, y=c.SELECTED_Y + (45*index))
+        if self.__start:
+            for i in range(9):
+                if self.__buttonsOptions[i] == btn.widget:
+                    self.__number = i+1
+                    break
+            print(self.__number)
+            self.__optionSelect.place(x=c.SELECTED_X, y=c.SELECTED_Y + (45*(self.__number-1)))
+        else:
+            messagebox.showwarning("Log in", "Presione el boton de start pata iniciar el juego")
 
 
     def matrixOptionSelected(self, btn):
         """
         Search the option selected of the matrix
         """
-        matrixRow = 0
-        matrixColumn = 0
-        for i in range(9):
-            for j in range(9):
+        if self.__number != 0 and self.__start:
+            matrixRow = 0
+            matrixColumn = 0
+            for i in range(9):
+                for j in range(9):
+                    if self.__matrix[i][j] == btn.widget:
+                        matrixRow = i
+                        matrixColumn = j
+                        break
                 if self.__matrix[i][j] == btn.widget:
-                    matrixRow = i
-                    matrixColumn = j
                     break
-        print(matrixRow)
-        print(matrixColumn)
+            result = self.__handler.addNumberToGame(matrixRow,matrixColumn,self.__number)
+            if result[0] == False:
+                messagebox.showerror("Error", result[1])
+            self.updateTable()
+            if result[0] == True and result[1] == "Complete":
+                messagebox.showinfo("WIN", "Congratulations you have completed the game")
+                self.getSettingGame()
+            self.__optionSelect.place_forget()
+            self.__number = 0
+        else:
+            messagebox.showwarning("OPTION SELECTED", "Seleccione un valor primero")
 
 
     def initListeners(self):
@@ -237,18 +260,24 @@ class Game:
                     if gameMatrix[i][j] != 0:
                         self.__matrix[i][j].config(text=self.__options_label[gameMatrix[i][j]-1],
                                                     width=c.SQUARE_WIDTH, height=c.SQUARE_HEIGHT)
+                    else:
+                        self.__matrix[i][j].config(text="",width=c.SQUARE_WIDTH, height=c.SQUARE_HEIGHT)
         elif self.__fillOption == 3:
-            for i in range(9):
-                for j in range(9):
+            for i in range(len(gameMatrix)):
+                for j in range(len(gameMatrix[0])):
                     if gameMatrix[i][j] != 0:
                         self.__matrix[i][j].config(bg=self.__options_bg[gameMatrix[i][j]-1],
                                                    width=c.SQUARE_WIDTH, height=c.SQUARE_HEIGHT)
+                    else:
+                        self.__matrix[i][j].config(bg="white", width=c.SQUARE_WIDTH, height=c.SQUARE_HEIGHT)
         elif self.__fillOption == 4:
             for i in range(9):
                 for j in range(9):
                     if gameMatrix[i][j] != 0:
                         self.__matrix[i][j].config(image=self.__options_images[gameMatrix[i][j]-1],
-                                                    width=35,height=35)
+                                                     width=35, height=35)
+                    else:
+                        self.__matrix[i][j].config(image="", width=c.SQUARE_WIDTH, height=c.SQUARE_HEIGHT)
 
 
     def cleanTable(self):
@@ -261,7 +290,6 @@ class Game:
                 self.__matrix[i][j].config(text="",bg="white", image = '',
                                             width=c.SQUARE_WIDTH, height=c.SQUARE_HEIGHT)
 
-    
 
     def loadGame(self):
         """
@@ -281,29 +309,53 @@ class Game:
         """
         Check and  start the game if is possible
         """
-        for index in range(len(self.__timeEntry)):
-                self.__timeEntry[index].config(state="disabled")
-        self.playerName.config(state="disabled")
+        if not self.__start:
+            if len(self.playerName.get()) == 0:
+                messagebox.showerror("ERROR", "Ingrese el nombre para iniciar el juego")
+                return
+            self.__start = True
+            self.__handler.setPlayer(self.playerName.get())
+            for index in range(len(self.__timeEntry)):
+                    self.__timeEntry[index].config(state="disabled")
+            self.playerName.config(state="disabled")
 
 
     def undo(self):
         """
         Delete the last move
         """
+        if self.__start:
+            self.__handler.removeLastMove()
+            self.updateTable()
+        else:
+            messagebox.showwarning("Undo", "No se ha iniciado el juego")
     
 
     def finishGame(self):
         """
-        Exit and delete the game
+        Exit and delete the game and load a new game
         """
+        if self.__start:
+            opcion = messagebox.askyesno("Finish Game","¿Esta seguro que desea finalizar el juego?")
+            if opcion:
+                self.getSettingGame()
+        else:
+            messagebox.showwarning("Finish Game", "No se ha iniciado el juego")
     
-    
+
     def erase(self):
         """
         Delete all move that the players did
         """
-
+        if self.__start:
+            opcion = messagebox.askyesno("Erase game","¿Esta seguro que desea borrar el juego?")
+            if opcion:
+                self.__handler.EraseGame()
+        else:
+            messagebox.showwarning("Erase game", "No se ha iniciado el juego")
+        self.updateTable()
     
+
     def top10(self):
         """
         show the top10 of each levels
@@ -315,7 +367,7 @@ class Game:
         top10Frame.title("Top 10")
         top10Frame.config(bg="white")
         top10Frame.geometry("{}x{}+{}+{}".format(700,
-                                            600,
+                                            500,
                                             c.FRAME_X,
                                             c.FRAME_Y))
         tk.Label(top10Frame, text="Top 10 \n Easy Level",
@@ -424,3 +476,18 @@ class Game:
         if len(name) > 30:
             self.playerName.delete(0,"end")
             messagebox.showerror("Name format", "El nombre debe ser menor a 30 caracteres")
+        
+
+    def startWatch(self):
+        """
+
+        """
+        self.__seconds += 1
+        hours,min,sec = self.__handler.secToHours(self.__seconds)
+        self.__timeEntry[0].delete(0,'end')
+        self.__timeEntry[1].delete(0,'end')
+        self.__timeEntry[2].delete(0,'end')
+        self.__timeEntry[0].insert(0,hours)
+        self.__timeEntry[1].insert(0,min)
+        self.__timeEntry[2].insert(0,sec)
+        self.__timeEntry.after(1000, startWatch)

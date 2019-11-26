@@ -13,6 +13,8 @@ class Handler:
     __currentGame = None
     __currentLevel = None
     __gamePlayer = None
+    __playerPlays = []
+    __player = None
 
     def __init__(self):
         """
@@ -39,10 +41,12 @@ class Handler:
         """
         return self.__gamePlayer
 
+
     def chooseRandomGames(self):
         """
         Choose a random game from dictionary
         """
+        self.__gamePlayer = []
         if len(self.__gamesLevel) == 0:
             self.__gamesLevel = self.__games.getLevelGames(self.__currentLevel)
         keys = []
@@ -50,7 +54,8 @@ class Handler:
             keys.append(key)
         game = random.choice(keys)
         self.__currentGame = self.__gamesLevel.pop(game)
-        self.__gamePlayer = self.__currentGame
+        for row in self.__currentGame:
+            self.__gamePlayer.append(row.copy())
 
 
     def checkBestPlayers(self, player):
@@ -107,6 +112,80 @@ class Handler:
             self.__bestPlayers[2].append(Player(player[0],player[1]))
 
 
+    def addNumberToGame(self, pRow, pColumn, pNumber):
+        """
+        Check if is posible insert a number this row and column
+        and insert the element
+        """
+        submatrix_row = (pRow//3)*3
+        submatrix_column = (pColumn//3)*3
+        row = submatrix_row
+        column = submatrix_column
+        if self.__currentGame[pRow][pColumn] != 0:
+            return False, "No se puede remplazar el elemento(elemento fijo)"
+        # Check if there is this number in the row and column 
+        # and the sub-matrix 3x3
+        for index in range(9):
+            # check row and column
+            if self.__gamePlayer[index][pColumn] == pNumber:
+                return False, "El elemento se encuentra en la fila"
+            if self.__gamePlayer[pRow][index] == pNumber:
+                return False, "El elemento se encuentra en la columna"
+            # check in the sub-matrix
+            if column == submatrix_column+3:
+                column = submatrix_column
+                row += 1
+            if self.__gamePlayer[row][column] == pNumber:
+                return False,"El elemento ya se encuentra en la submatriz"
+            column+=1
+        self.__gamePlayer[pRow][pColumn] = pNumber
+        if self.gameComplete():
+            return True,"Complete"
+        self.__playerPlays.append((pRow, pColumn))
+        print(self.__gamePlayer)
+        return True,""
+
+
+    def addPlayerTop10(self):
+        """
+        Check the list of a player to look if better than the last one
+        """
+
+    def removeLastMove(self):
+        """
+        Undo the last move
+        """
+        if len(self.__playerPlays) != 0:
+            row,column = self.__playerPlays.pop(-1)
+            self.__gamePlayer[row][column] = 0
+
+
+    def setPlayer(self, pName):
+        """
+        Set the actual player
+        """
+        self.__player = Player(pName,0)
+
+
+    def EraseGame(self):
+        """
+        Delete the player plays of the gamePlayer
+        """
+        self.__playerPlays = []
+        self.__gamePlayer = self.__currentGame.copy()
+
+
+    def gameComplete(self):
+        """
+        check gamePlayer to look if a complete
+        """
+        for row in range(9):
+            for column in range(9):
+                if self.__gamePlayer[row][column] == 0:
+                    return False
+        return True
+
+
 def secToHours(time):
     """
     Convert seconds in hours format
@@ -115,4 +194,14 @@ def secToHours(time):
     time %= 3600
     minutes = time//60
     time %= 60
-    return str(hours)+":"+str(minutes)+":"+str(time)
+    return hours,minutes,time
+
+
+def HoursToSec(hours, min, sec):
+    """
+    Convert in the hours, min and sec in seconds
+    """
+    seconds = hours*3600
+    seconds += min*60
+    seconds += sec
+    return seconds
