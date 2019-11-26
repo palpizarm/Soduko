@@ -1,5 +1,6 @@
 from PIL import Image, ImageTk
 import ast
+import numpy as np
 
 from Games import *
 from Player import *
@@ -24,7 +25,6 @@ class Handler:
         self.__gamesLevel = dict()
         self.__bestPlayers = dict()
         self.loadBestPlayers()
-        self.saveBestPlayers()
     
 
     def setLevel(self, level):
@@ -57,13 +57,6 @@ class Handler:
         for row in self.__currentGame:
             self.__gamePlayer.append(row.copy())
 
-
-    def checkBestPlayers(self, player):
-        """
-        Check the dictionary to look if a this players is best than one in the top
-        """
-        
-
     def getBestPlayersToTop(self):
         """
         Save the best players of three levels in a list to show in a top frame
@@ -74,7 +67,7 @@ class Handler:
             for player in self.__bestPlayers[key]:
                 elemento = player.getName() , secToHours(player.getTime())
                 level.append(elemento)
-            bestPlayers.append(level)
+            bestPlayers.append(level.copy())
         return bestPlayers
 
 
@@ -142,14 +135,23 @@ class Handler:
         if self.gameComplete():
             return True,"Complete"
         self.__playerPlays.append((pRow, pColumn))
-        print(self.__gamePlayer)
         return True,""
 
 
-    def addPlayerTop10(self):
+    def addPlayerTop10(self, time):
         """
         Check the list of a player to look if better than the last one
         """
+        self.__player.setTime(time)
+        playersLevel = self.__bestPlayers[self.__currentLevel]
+        for index in range(len(playersLevel)):
+            if playersLevel[index].getTime() > time:
+                playersLevel.insert(index, self.__player)
+                break
+        if len(playersLevel) > 10:
+            playersLevel.pop(-1)
+        self.saveBestPlayers()
+
 
     def removeLastMove(self):
         """
@@ -184,6 +186,59 @@ class Handler:
                 if self.__gamePlayer[row][column] == 0:
                     return False
         return True
+
+
+    def solveSudoku(self):
+        """
+        Solve the current game
+        """
+        m = self.__gamePlayer
+        if isinstance(m, list):
+            m = np.array(m)
+        elif isinstance(m, str):
+            m = np.loadtxt(m, dtype=np.int, delimiter=",")
+        rg = np.arange(m.shape[0]+1)
+        while True:
+            mt = m.copy()
+            while True:
+                d = []
+                d_len = []
+                for i in range(m.shape[0]):
+                    for j in range(m.shape[1]):
+                        if mt[i, j] == 0:
+                            possibles = np.setdiff1d(rg, np.union1d(np.union1d(mt[i, :], mt[:, j]), mt[3*(i//3):3*(i//3+1), 3*(j//3):3*(j//3+1)]))
+                            d.append([i, j, possibles])
+                            d_len.append(len(possibles))
+                if len(d) == 0:
+                    break
+                idx = np.argmin(d_len)
+                i, j, p = d[idx]
+                if len(p) > 0:
+                    num = np.random.choice(p)
+                else:
+                    break
+                mt[i, j] = num
+                if len(d) == 0:
+                    break
+            if np.all(mt != 0):
+                break
+        print(mt)
+        self.__gamePlayer = mt
+
+
+    def saveCurrentGame(self):
+        """
+        return the current game
+        """
+        game = self.__gamePlayer.copy()
+        plays = self.__playerPlays.copy()
+        return game,plays
+
+
+    def loadCurrentGame(self, game, plays, player):
+        self.__gamePlayer = game.copy()
+        self.__playerPlays.copy()
+        self.__player = (player,0)
 
 
 def secToHours(time):
